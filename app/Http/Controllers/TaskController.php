@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Task;
 
 class TaskController extends Controller
 {
@@ -11,7 +12,8 @@ class TaskController extends Controller
      */
     public function index()
     {
-        //
+        $task = Task::all();
+        return view('task.index', compact('task'));
     }
 
     /**
@@ -19,7 +21,7 @@ class TaskController extends Controller
      */
     public function create()
     {
-        //
+        return view('task.create');
     }
 
     /**
@@ -27,7 +29,16 @@ class TaskController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'task' => 'required'
+        ]);
+
+        Task::create([
+            'task'=>$request->get('task')
+        ]);
+
+        return redirect()->route('task.index')->with('message', 'Task berhasil ditambahkan!');
+
     }
 
     /**
@@ -43,7 +54,8 @@ class TaskController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $task = Task::find($id);
+        return view('task.edit', compact('task'));
     }
 
     /**
@@ -51,7 +63,14 @@ class TaskController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $request->validate([
+            'task' => 'required'
+        ]);
+
+        $task = Task::findOrFail($id);
+        $task->task = $request->task;
+        $task->save();
+        return redirect()->route('task.index')->with('message', 'Task berhasil diupdate!');
     }
 
     /**
@@ -59,6 +78,8 @@ class TaskController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $task = Task::findOrFail($id);
+        $task->delete();
+        return redirect()->route('task.index')->with('message', 'Task berhasil dihapus!');
     }
 }
